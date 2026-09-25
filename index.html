@@ -3358,32 +3358,45 @@ async function renderPublicProfilePanel(p){const panel=document.getElementById('
     }
 
     // Global leaderboard uses live backend players only. No demo/NPC players.
-    function renderLeaderboardEntries(mode, entries, liveReady) {
-      const box = document.getElementById('leaderboardContent');
-      if (!box) return;
+  if (me.isGuest) {
+  const localGuest = getGuestProgress();
 
-      entries = (Array.isArray(entries) ? entries : []).map(function(e) {
-        return {
-          username: (e.isGuest || e.guest) ? (e.playerId || e.userId || e.username || 'Guest Player') : (e.username || e.name || e.player || 'Player'),
-          score: Number(e.score ?? e.highScore ?? e.points ?? 0),
-          highScore: Number(e.highScore ?? e.score ?? 0),
-          rank: e.rank || 'Bronze I',
-          rankPoints: Number(e.rankPoints ?? e.rp ?? e.rank_points ?? 0),
-          xp: Number(e.xp ?? 0),
-          level: Number(e.level ?? 1),
-          matches: Number(e.matches ?? 0),
-          userId: e.userId || e.playerId || '',
-          playerId: e.playerId || e.userId || '',
-          isGuest: !!(e.isGuest || e.guest),
-          deleted: !!e.deleted,
-          npc: !!e.npc, avatar: e.avatar || '',
-          classicScore: Number(e.classicScore ?? e.score ?? 0),
-          rankScore: Number(e.rankScore ?? 0),
-          tournamentTrophy: Number(e.tournamentTrophy ?? e.monthlyTrophy ?? 0),
-          monthlyTrophy: Number(e.monthlyTrophy ?? e.tournamentTrophy ?? 0),
-          tournamentMatches: Number(e.matches ?? e.tournamentMatches ?? 0)
-        };
-      });
+  const guestIndex = entries.findIndex(isSamePlayer);
+
+  const guestData = {
+    username: localGuest.username || me.playerId || me.userId || 'Guest Player',
+    playerId: me.playerId || me.userId || '',
+    userId: me.userId || me.playerId || '',
+    isGuest: true,
+
+    score: Number(localGuest.classicScore || 0),
+    classicScore: Number(localGuest.classicScore || 0),
+    highScore: Number(localGuest.highScore || 0),
+
+    rank: localGuest.rank || 'Bronze I',
+    rankPoints: Number(localGuest.rankPoints || 0),
+    xp: Number(localGuest.xp || 0),
+    level: Number(localGuest.level || 1),
+
+    monthlyTrophy: Number(localGuest.tournamentMonthlyTrophy || 0),
+    tournamentTrophy: Number(localGuest.tournamentTrophy || 0),
+    tournamentMatches: Number(localGuest.tournamentMatches || 0),
+
+    matches: Number(localGuest.dailyRankMatches || 0),
+    rankScore: Number(localGuest.rankScore || 0),
+
+    npc: false,
+    avatar: me.avatar || getSelectedAvatar()
+  };
+
+  if (guestIndex >= 0) {
+    // Replace backend's old Guest data with current local Guest data
+    entries[guestIndex] = Object.assign({}, entries[guestIndex], guestData);
+  } else {
+    // Guest does not exist in backend leaderboard yet
+    entries.push(guestData);
+  }
+}
 
       if (mode === 'Rank') {
         entries.sort(function(a,b) { return b.rankPoints - a.rankPoints || b.rankScore - a.rankScore || a.username.localeCompare(b.username); });
