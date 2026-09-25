@@ -893,6 +893,7 @@
       </div>
 
       <div class="top-actions">
+        <button id="loginTopBtn" onclick="handleTopLoginButton()" class="backend-btn nav-main-btn">🔐 Login</button>
         <button id="homeBtn" onclick="goHome()" class="backend-btn nav-main-btn">⌂ Home</button>
         <button id="settingsBtn" onclick="openSettings()" class="backend-btn nav-main-btn">⚙ Settings</button>
         <button id="langBtn" onclick="toggleLanguage()" class="backend-btn">বাংলা</button>
@@ -2334,9 +2335,12 @@ class ElementItem {
     }
 
     function handleAccountButton() {
-      if (backendState.user) openAccount('profile');
-      else openAuth();
-    }
+  if (backendState.user && backendState.user.isGuest === false && backendState.token) {
+    openAccount('profile');
+  } else {
+    openAuth();
+  }
+}
 
     function rankShortName(rank) {
       const map = {'Bronze I':'BRZ I','Bronze II':'BRZ II','Bronze III':'BRZ III',
