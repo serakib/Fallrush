@@ -3405,53 +3405,72 @@ async function renderPublicProfilePanel(p){const panel=document.getElementById('
       } else {
         entries.sort(function(a,b) { return b.classicScore - a.classicScore || b.xp - a.xp || a.username.localeCompare(b.username); });
       }
-
       const me = backendState.user || ensureLocalGuestSession();
       const myId = String(me.userId || me.playerId || '').toLowerCase();
       const myName = String(me.username || '').toLowerCase();
+
       const isSamePlayer = function(e) {
         const eid = String(e.userId || e.playerId || '').toLowerCase();
-        return (myId && eid && eid === myId) || (!eid && !myId && String(e.username || '').toLowerCase() === myName);
+        return (myId && eid && eid === myId) ||
+               (!eid && !myId && String(e.username || '').toLowerCase() === myName);
       };
-if (me.isGuest) {
-  const guestIndex = entries.findIndex(isSamePlayer);
 
-  const guestData = {
-    username: me.playerId || me.userId || 'Guest Player',
-    playerId: me.playerId || me.userId || '',
-    userId: me.userId || me.playerId || '',
-    isGuest: true,
+      if (me.isGuest) {
+        const guestIndex = entries.findIndex(isSamePlayer);
 
-    score: Number(me.classicScore || 0),
-    classicScore: Number(me.classicScore || 0),
-    highScore: Number(me.highScore || 0),
+        const guestData = {
+          username: me.playerId || me.userId || 'Guest Player',
+          playerId: me.playerId || me.userId || '',
+          userId: me.userId || me.playerId || '',
+          isGuest: true,
 
-    rank: me.rank || 'Bronze I',
-    rankPoints: Number(me.rankPoints || 0),
-    rankScore: Number(me.rankScore || 0),
+          score: Number(me.classicScore || 0),
+          classicScore: Number(me.classicScore || 0),
+          highScore: Number(me.highScore || 0),
 
-    xp: Number(me.xp || 0),
-    level: Number(me.level || 1),
+          rank: me.rank || 'Bronze I',
+          rankPoints: Number(me.rankPoints || 0),
+          rankScore: Number(me.rankScore || 0),
 
-    monthlyTrophy: Number(me.tournamentMonthlyTrophy || 0),
-    tournamentTrophy: Number(me.tournamentTrophy || 0),
-    tournamentMatches: Number(me.tournamentMatches || 0),
+          xp: Number(me.xp || 0),
+          level: Number(me.level || 1),
 
-    matches: Number(me.matches || getLocalMatchCount()),
+          monthlyTrophy: Number(me.tournamentMonthlyTrophy || 0),
+          tournamentTrophy: Number(me.tournamentTrophy || 0),
+          tournamentMatches: Number(me.tournamentMatches || 0),
 
-    npc: false,
-    avatar: me.avatar || getSelectedAvatar()
-  };
+          matches: Number(me.matches || getLocalMatchCount()),
 
-  if (guestIndex >= 0) {
-    entries[guestIndex] = Object.assign({}, entries[guestIndex], guestData);
-  } else {
-    entries.push(guestData);
-  }
-}
-      if (mode === 'Rank') entries.sort(function(a,b) { return b.rankPoints - a.rankPoints || b.rankScore - a.rankScore || a.username.localeCompare(b.username); });
-      else if (mode === 'Tournament') entries.sort(function(a,b) { return b.monthlyTrophy - a.monthlyTrophy || b.highScore - a.highScore || a.username.localeCompare(b.username); });
-      else entries.sort(function(a,b) { return b.classicScore - a.classicScore || b.xp - a.xp || a.username.localeCompare(b.username); });
+          npc: false,
+          avatar: me.avatar || getSelectedAvatar()
+        };
+
+        if (guestIndex >= 0) {
+          entries[guestIndex] = Object.assign({}, entries[guestIndex], guestData);
+        } else {
+          entries.push(guestData);
+        }
+      }
+
+      if (mode === 'Rank') {
+        entries.sort(function(a,b) {
+          return b.rankPoints - a.rankPoints ||
+                 b.rankScore - a.rankScore ||
+                 a.username.localeCompare(b.username);
+        });
+      } else if (mode === 'Tournament') {
+        entries.sort(function(a,b) {
+          return b.monthlyTrophy - a.monthlyTrophy ||
+                 b.highScore - a.highScore ||
+                 a.username.localeCompare(b.username);
+        });
+      } else {
+        entries.sort(function(a,b) {
+          return b.classicScore - a.classicScore ||
+                 b.xp - a.xp ||
+                 a.username.localeCompare(b.username);
+        });
+      }
       const myIndex = entries.findIndex(isSamePlayer);
       const myEntry = myIndex >= 0 ? entries[myIndex] : null;
       // No frontend player-count restriction: render every entry returned by the backend.
