@@ -3358,57 +3358,37 @@ async function renderPublicProfilePanel(p){const panel=document.getElementById('
     }
 
     // Global leaderboard uses live backend players only. No demo/NPC players.
-  if (me.isGuest) {
-  const localGuest = getGuestProgress();
+    function renderLeaderboardEntries(mode, entries, liveReady) {
+      const box = document.getElementById('leaderboardContent');
+      if (!box) return;
 
-  const guestIndex = entries.findIndex(isSamePlayer);
+      entries = (Array.isArray(entries) ? entries : []).map(function(e) {
+        return {
+          username: (e.isGuest || e.guest) ? (e.playerId || e.userId || e.username || 'Guest Player') : (e.username || e.name || e.player || 'Player'),
+          score: Number(e.score ?? e.highScore ?? e.points ?? 0),
+          highScore: Number(e.highScore ?? e.score ?? 0),
+          rank: e.rank || 'Bronze I',
+          rankPoints: Number(e.rankPoints ?? e.rp ?? e.rank_points ?? 0),
+          xp: Number(e.xp ?? 0),
+          level: Number(e.level ?? 1),
+          matches: Number(e.matches ?? 0),
+          userId: e.userId || e.playerId || '',
+          playerId: e.playerId || e.userId || '',
+          isGuest: !!(e.isGuest || e.guest),
+          deleted: !!e.deleted,
+          npc: !!e.npc,
+          avatar: e.avatar || '',
+          classicScore: Number(e.classicScore ?? e.score ?? 0),
+          rankScore: Number(e.rankScore ?? 0),
+          tournamentTrophy: Number(e.tournamentTrophy ?? e.monthlyTrophy ?? 0),
+          monthlyTrophy: Number(e.monthlyTrophy ?? e.tournamentTrophy ?? 0),
+          tournamentMatches: Number(e.matches ?? e.tournamentMatches ?? 0)
+        };
+      });
 
-  const guestData = {
-    username: localGuest.username || me.playerId || me.userId || 'Guest Player',
-    playerId: me.playerId || me.userId || '',
-    userId: me.userId || me.playerId || '',
-    isGuest: true,
-
-    score: Number(localGuest.classicScore || 0),
-    classicScore: Number(localGuest.classicScore || 0),
-    highScore: Number(localGuest.highScore || 0),
-
-    rank: localGuest.rank || 'Bronze I',
-    rankPoints: Number(localGuest.rankPoints || 0),
-    xp: Number(localGuest.xp || 0),
-    level: Number(localGuest.level || 1),
-
-    monthlyTrophy: Number(localGuest.tournamentMonthlyTrophy || 0),
-    tournamentTrophy: Number(localGuest.tournamentTrophy || 0),
-    tournamentMatches: Number(localGuest.tournamentMatches || 0),
-
-    matches: Number(localGuest.dailyRankMatches || 0),
-    rankScore: Number(localGuest.rankScore || 0),
-
-    npc: false,
-    avatar: me.avatar || getSelectedAvatar()
-  };
-
-  if (guestIndex >= 0) {
-    // Replace backend's old Guest data with current local Guest data
-    entries[guestIndex] = Object.assign({}, entries[guestIndex], guestData);
-  } else {
-    // Guest does not exist in backend leaderboard yet
-    entries.push(guestData);
-  }
-}
-
-      if (mode === 'Rank') {
-        entries.sort(function(a,b) { return b.rankPoints - a.rankPoints || b.rankScore - a.rankScore || a.username.localeCompare(b.username); });
-      } else if (mode === 'Tournament') {
-        entries.sort(function(a,b) { return b.monthlyTrophy - a.monthlyTrophy || b.highScore - a.highScore || a.username.localeCompare(b.username); });
-      } else {
-        entries.sort(function(a,b) { return b.classicScore - a.classicScore || b.xp - a.xp || a.username.localeCompare(b.username); });
-      }
       const me = backendState.user || ensureLocalGuestSession();
       const myId = String(me.userId || me.playerId || '').toLowerCase();
       const myName = String(me.username || '').toLowerCase();
-
       const isSamePlayer = function(e) {
         const eid = String(e.userId || e.playerId || '').toLowerCase();
         return (myId && eid && eid === myId) ||
@@ -3416,35 +3396,28 @@ async function renderPublicProfilePanel(p){const panel=document.getElementById('
       };
 
       if (me.isGuest) {
-        const guestIndex = entries.findIndex(isSamePlayer);
-
+        const localGuest = getGuestProgress();
         const guestData = {
-          username: me.playerId || me.userId || 'Guest Player',
+          username: localGuest.username || me.playerId || me.userId || 'Guest Player',
           playerId: me.playerId || me.userId || '',
           userId: me.userId || me.playerId || '',
           isGuest: true,
-
-          score: Number(me.classicScore || 0),
-          classicScore: Number(me.classicScore || 0),
-          highScore: Number(me.highScore || 0),
-
-          rank: me.rank || 'Bronze I',
-          rankPoints: Number(me.rankPoints || 0),
-          rankScore: Number(me.rankScore || 0),
-
-          xp: Number(me.xp || 0),
-          level: Number(me.level || 1),
-
-          monthlyTrophy: Number(me.tournamentMonthlyTrophy || 0),
-          tournamentTrophy: Number(me.tournamentTrophy || 0),
-          tournamentMatches: Number(me.tournamentMatches || 0),
-
-          matches: Number(me.matches || getLocalMatchCount()),
-
+          score: Number(localGuest.classicScore || 0),
+          classicScore: Number(localGuest.classicScore || 0),
+          highScore: Number(localGuest.highScore || 0),
+          rank: localGuest.rank || 'Bronze I',
+          rankPoints: Number(localGuest.rankPoints || 0),
+          rankScore: Number(localGuest.rankScore || 0),
+          xp: Number(localGuest.xp || 0),
+          level: Number(localGuest.level || 1),
+          monthlyTrophy: Number(localGuest.tournamentMonthlyTrophy || 0),
+          tournamentTrophy: Number(localGuest.tournamentTrophy || 0),
+          tournamentMatches: Number(localGuest.tournamentMatches || 0),
+          matches: Number(localGuest.dailyRankMatches || 0),
           npc: false,
-          avatar: me.avatar || getSelectedAvatar()
+          avatar: me.avatar || localGuest.avatar || getSelectedAvatar()
         };
-
+        const guestIndex = entries.findIndex(isSamePlayer);
         if (guestIndex >= 0) {
           entries[guestIndex] = Object.assign({}, entries[guestIndex], guestData);
         } else {
@@ -3454,26 +3427,20 @@ async function renderPublicProfilePanel(p){const panel=document.getElementById('
 
       if (mode === 'Rank') {
         entries.sort(function(a,b) {
-          return b.rankPoints - a.rankPoints ||
-                 b.rankScore - a.rankScore ||
-                 a.username.localeCompare(b.username);
+          return b.rankPoints - a.rankPoints || b.rankScore - a.rankScore || a.username.localeCompare(b.username);
         });
       } else if (mode === 'Tournament') {
         entries.sort(function(a,b) {
-          return b.monthlyTrophy - a.monthlyTrophy ||
-                 b.highScore - a.highScore ||
-                 a.username.localeCompare(b.username);
+          return b.monthlyTrophy - a.monthlyTrophy || b.highScore - a.highScore || a.username.localeCompare(b.username);
         });
       } else {
         entries.sort(function(a,b) {
-          return b.classicScore - a.classicScore ||
-                 b.xp - a.xp ||
-                 a.username.localeCompare(b.username);
+          return b.classicScore - a.classicScore || b.xp - a.xp || a.username.localeCompare(b.username);
         });
       }
+
       const myIndex = entries.findIndex(isSamePlayer);
       const myEntry = myIndex >= 0 ? entries[myIndex] : null;
-      // No frontend player-count restriction: render every entry returned by the backend.
       const visible = entries.slice();
 
       window.__leaderboardEntries = visible;
@@ -3482,25 +3449,37 @@ async function renderPublicProfilePanel(p){const panel=document.getElementById('
         html = '<div style="color:#94a3b8;text-align:center;padding:20px;">No leaderboard players yet.</div>';
       } else {
         html = visible.map(function(e, visibleIndex) {
-          const realIndex = entries.findIndex(function(x){ return String(x.username).toLowerCase() === String(e.username).toLowerCase(); });
+          const realIndex = entries.findIndex(function(x) {
+            return String(x.username).toLowerCase() === String(e.username).toLowerCase();
+          });
           const position = realIndex + 1;
           const isMe = isSamePlayer(e);
-          const mainValue = mode === 'Rank' ? Number(e.rankPoints || 0) + ' RP' : (mode === 'Tournament' ? Number(e.monthlyTrophy || 0) + ' 🏆' : Number(e.classicScore || 0));
+          const mainValue = mode === 'Rank'
+            ? Number(e.rankPoints || 0) + ' RP'
+            : (mode === 'Tournament'
+              ? Number(e.monthlyTrophy || 0) + ' 🏆'
+              : Number(e.classicScore || 0));
+
           return '<div class="leader-row' + (isMe ? ' is-me' : '') + '" onclick="openPublicProfileFromLeaderboard(' + visibleIndex + ')" title="View ' + escapeHtmlClient(e.username) + ' profile">' +
             '<div class="leader-rank">#' + position + '</div>' +
             '<div class="leader-avatar" aria-hidden="true">' + (isMe ? getSelectedAvatar() : (e.avatar || avatarForPlayer(e.username))) + '</div>' +
-            '<div class="leader-main"><div class="leader-name-line"><div class="leader-name">' + escapeHtmlClient(e.username) + '</div>' + (e.isGuest ? '<span class="leader-you">GUEST</span>' : '') + (e.deleted ? '<span class="leader-you">HISTORY</span>' : '') + (isMe ? '<span class="leader-you">YOU</span>' : '') + '</div>' +
-            '<div class="leader-meta-grid"><span>⭐ XP ' + Number(e.xp || 0) + '</span><span>🏅 ' + escapeHtmlClient(e.rank || 'Bronze I') + '</span><span>💠 ' + Number(e.rankPoints || 0) + ' RP</span><span>' + (mode === 'Tournament' ? '🏆 ' + Number(e.monthlyTrophy || 0) : '🎮 ' + Number(e.classicScore || 0)) + '</span></div></div>' +
+            '<div class="leader-main"><div class="leader-name-line"><div class="leader-name">' + escapeHtmlClient(e.username) + '</div>' +
+            (e.isGuest ? '<span class="leader-you">GUEST</span>' : '') +
+            (e.deleted ? '<span class="leader-you">HISTORY</span>' : '') +
+            (isMe ? '<span class="leader-you">YOU</span>' : '') + '</div>' +
+            '<div class="leader-meta-grid"><span>⭐ XP ' + Number(e.xp || 0) + '</span><span>🏅 ' + escapeHtmlClient(e.rank || 'Bronze I') + '</span><span>💠 ' + Number(e.rankPoints || 0) + ' RP</span><span>' +
+            (mode === 'Tournament' ? '🏆 ' + Number(e.monthlyTrophy || 0) : '🎮 ' + Number(e.classicScore || 0)) + '</span></div></div>' +
             '<div class="leader-score">' + mainValue + '</div></div>';
         }).join('');
       }
 
-      // Rows scroll vertically; MY PROFILE stays pinned at the bottom from the first frame.
-      // Both rows and the pinned bar live inside the same horizontal scroll frame, so side-scroll moves everything together.
       let pinned = '';
       if (myEntry) {
-        pinned = '<div class="my-profile-bar" onclick="openAccountTab(\'profile\')" title="Open your profile"><div class="my-profile-head"><div class="my-profile-avatar">' + getSelectedAvatar() + '</div><div class="my-profile-main"><div class="my-profile-title"><span>MY PROFILE</span><span class="my-profile-badge">YOU</span></div><div class="my-profile-meta"><span>' + escapeHtmlClient(myEntry.username) + '</span><span>⭐ XP ' + Number(myEntry.xp||0) + '</span><span>🏅 ' + escapeHtmlClient(myEntry.rank||'Bronze I') + '</span><span>💠 ' + Number(myEntry.rankPoints||0) + ' RP</span></div></div><div class="my-profile-score">' + (mode === 'Rank' ? Number(myEntry.rankPoints||0) + ' RP' : (mode === 'Tournament' ? Number(myEntry.monthlyTrophy||0) + ' 🏆' : Number(myEntry.classicScore||0))) + '</div></div></div><div class="leaderboard-position" style="margin-top:7px;color:#67e8f9;font-size:10px;text-align:center;">Your leaderboard position: <b>#' + (myIndex + 1) + '</b></div>';
+        pinned = '<div class="my-profile-bar" onclick="openAccountTab(\'profile\')" title="Open your profile"><div class="my-profile-head"><div class="my-profile-avatar">' + getSelectedAvatar() + '</div><div class="my-profile-main"><div class="my-profile-title"><span>MY PROFILE</span><span class="my-profile-badge">YOU</span></div><div class="my-profile-meta"><span>' + escapeHtmlClient(myEntry.username) + '</span><span>⭐ XP ' + Number(myEntry.xp||0) + '</span><span>🏅 ' + escapeHtmlClient(myEntry.rank||'Bronze I') + '</span><span>💠 ' + Number(myEntry.rankPoints||0) + ' RP</span></div></div><div class="my-profile-score">' +
+          (mode === 'Rank' ? Number(myEntry.rankPoints||0) + ' RP' : (mode === 'Tournament' ? Number(myEntry.monthlyTrophy||0) + ' 🏆' : Number(myEntry.classicScore||0))) +
+          '</div></div></div><div class="leaderboard-position" style="margin-top:7px;color:#67e8f9;font-size:10px;text-align:center;">Your leaderboard position: <b>#' + (myIndex + 1) + '</b></div>';
       }
+
       box.innerHTML = '<div class="leaderboard-scroll-frame"><div class="leaderboard-vertical"><div class="leaderboard-rows">' + html + '</div></div>' + pinned + '</div>';
     }
 
