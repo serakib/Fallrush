@@ -922,8 +922,8 @@ class ElementItem {
       hidePauseUI();
       closePauseModal();
       if (state.score > state.highScore) {
-        state.highScore = state.score;
-        localStorage.setItem('elem_high_score', String(toNaturalNumber(state.highScore, 0)));
+       highScore = Math.max(0, Math.floor(Number(highScore) || 0));
+       localStorage.setItem("highScore", highScore);
       }
       updateLiveHud();
       syncGameResult();
