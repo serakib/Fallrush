@@ -812,6 +812,8 @@
       </div>
 
       <div class="top-actions">
+
+            <button id="classicModeBtn" class="backend-btn active" onclick="openMatchSelector()">🎮 Play Match</button>
         <button id="leaderboardTopBtn" onclick="openAccountTab('leaderboard')" class="backend-btn nav-main-btn">🏆 Leaderboard</button>
         <button id="homeBtn" onclick="goHome()" class="backend-btn nav-main-btn">⌂ Home</button>
         <button id="settingsBtn" onclick="openSettings()" class="backend-btn nav-main-btn">⚙ Settings</button>
@@ -819,13 +821,14 @@
         <button id="howToPlayBtn" onclick="openInfoModal()" class="backend-btn">ⓘ Info</button>
         <button id="howToPlayGuideBtn" onclick="openHowToPlayGuide()" class="backend-btn">🎮 How to Play</button>
       </div>
-    </header>
-
-    <div class="backend-panel">
-      <button id="classicModeBtn" class="backend-btn active" onclick="openMatchSelector()">🎮 Play Match</button>
+       <div class="backend-panel">
+  
       <button id="dailyBtn" class="backend-btn" onclick="handleDailyChallengeButton()">🎯 Daily Challenge</button>
       <button id="accountBtn" class="backend-btn" onclick="handleAccountButton()">👤 Guest / Login</button>
     </div>
+    </header>
+
+   
 
     <div id="profileStrip" class="profile-strip"></div>
     <div id="profileQuick" class="profile-quick"></div>
