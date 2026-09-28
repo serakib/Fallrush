@@ -360,4 +360,6 @@
       clearTimeout(window.__backendMsgTimer);
       window.__backendMsgTimer = setTimeout(updateBackendUI, 3500);
     }
-
+if (data.highScore !== undefined) {
+    data.highScore = Math.max(0, Math.floor(Number(data.highScore) || 0));
+}
