@@ -903,9 +903,10 @@
         </div>
         <button class="settings-action" style="width:auto;margin:0;padding:8px 12px;" onclick="toggleLanguage(); syncSettingsUI();">বাংলা / English</button>
       </div>
-      <button id="loginBtn" class="settings-option">
-    🔐 Login
+      <button class="settings-action" onclick="openAccount('login'); closeSettings();"> 🔐 Login
 </button>
+    🔐 Login
+
       <button class="settings-action" onclick="openAccount('profile'); closeSettings();">👤 Open Profile</button>
       <button class="settings-action" onclick="toggleHowToPlayModal(true); closeSettings();">ⓘ Game Info & Rules</button>
     </div>
