@@ -27,7 +27,7 @@
       u.level = Math.max(1, toNaturalNumber(u.level, 1));
       u.rankPoints = toNaturalNumber(u.rankPoints, 0);
       u.dailyRankMatches = toNaturalNumber(u.dailyRankMatches, 0);
-      u.highScore = toNaturalNumber(u.highScore, 0);
+      u.highScore = Math.max(0, Math.floor(Number(highScore) || 0));
       u.classicScore = toNaturalNumber(u.classicScore, 0);
       u.rankScore = toNaturalNumber(u.rankScore, 0);
       u.tournamentTrophy = toNaturalNumber(u.tournamentTrophy, 0);
